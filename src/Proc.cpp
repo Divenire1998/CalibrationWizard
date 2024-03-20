@@ -14,8 +14,8 @@ void Proc::openCamera()
     // set the size of frame to 640*480
     if(cap.open(0))
     {
-        cap.set(CV_CAP_PROP_FRAME_WIDTH,640);
-        cap.set(CV_CAP_PROP_FRAME_HEIGHT,480);
+        cap.set(cv::CAP_PROP_FRAME_WIDTH,640);
+        cap.set(cv::CAP_PROP_FRAME_HEIGHT,480);
     }
 }
 
@@ -229,7 +229,7 @@ bool Proc::plotGuide(bool guide_flag)
     if (counting++ % 5 == 0)
     {
         found = findChessboardCorners( frame_save, boardSize, pointBuf,
-                                      CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK);
+                                      cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK);
     }
 
         // Draw the corners.
@@ -247,7 +247,7 @@ void Proc::showChessboard()
     std::vector<cv::Point2f> pointBuf;
     
     found = findChessboardCorners( frame, boardSize, pointBuf,
-                                  CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
+                                  cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_NORMALIZE_IMAGE);
     // Draw the corners.
     drawChessboardCorners( frame,boardSize, cv::Mat(pointBuf), found);
 }

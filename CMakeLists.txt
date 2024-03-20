@@ -1,6 +1,7 @@
 set(PROJECT_NAME CalibrationWizard)
-project(${PROJECT_NAME})
 cmake_minimum_required(VERSION 2.8)
+project(${PROJECT_NAME})
+
 set(CMAKE_CXX_STANDARD 11)
 
 set(EXECUTABLE_OUTPUT_PATH bin)

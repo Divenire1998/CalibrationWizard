@@ -17,6 +17,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include "opencv2/imgcodecs/legacy/constants_c.h"
 
 #ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS
@@ -132,11 +133,11 @@ public:
         }
         
         flag = 0;
-        if(calibFixPrincipalPoint) flag |= CV_CALIB_FIX_PRINCIPAL_POINT;
-        if(calibZeroTangentDist)   flag |= CV_CALIB_ZERO_TANGENT_DIST;
-        if(aspectRatio)            flag |= CV_CALIB_FIX_ASPECT_RATIO;
-        if(calibZerok1Dist)        flag |= CV_CALIB_FIX_K1;
-        if(calibZerok2Dist)        flag |= CV_CALIB_FIX_K2;
+        if(calibFixPrincipalPoint) flag |= cv::CALIB_FIX_PRINCIPAL_POINT;
+        if(calibZeroTangentDist)   flag |= cv::CALIB_ZERO_TANGENT_DIST;
+        if(aspectRatio)            flag |= cv::CALIB_FIX_ASPECT_RATIO;
+        if(calibZerok1Dist)        flag |= cv::CALIB_FIX_K1;
+        if(calibZerok2Dist)        flag |= cv::CALIB_FIX_K2;
         
         
         
