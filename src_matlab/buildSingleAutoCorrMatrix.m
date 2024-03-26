@@ -10,6 +10,7 @@ for i = 1 : board_Height
     for j = 1 : board_Width
         pos = j + (i - 1) * board_Width;
         
+        % using neibor feature point to cal angle
         if j ~= board_Width
             heightVec = P(:, pos+1) - P(:, pos);
         else
@@ -20,9 +21,12 @@ for i = 1 : board_Height
         else
             widthVec = P(:, pos) - P(:, pos-board_Width);
         end
-        % angle of the current feature point
+        % angle of the current feature point represent neibor feature and
+        % current feature angle
         ang = acosd(dot(heightVec./norm(heightVec), widthVec./norm(widthVec)));
         
+        % rotation point to center 
+        % adop for simulate data 
         if ang>90
             v = heightVec./norm(heightVec) + widthVec./norm(widthVec);
             v = v./norm(v);
@@ -44,6 +48,7 @@ end
 
 % The polynomial function that we acquired from synthetic corners. Details
 % can be found in the paper
+% TODO i think this shoud a sine or some how curve is ok
 function y = ang2cornerness(x)
     y = 1404.50760.*x.^2 - 49.2631560 .* x.^3 + 0.94482.*x.^4 - 0.0093798 .* x.^5 + 0.0000455668.*x.^6 - 8.6160*1e-8.* x.^7;
 end

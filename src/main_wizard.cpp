@@ -21,10 +21,12 @@ int main(int argc, const char * argv[])
     bool chess_flag(false); // flag for calibration
     Proc *obj = new Proc;
     Settings *s = new Settings;
-    
+
+    // config for
     std::string inputSettingsFile = "../config/wizard.xml";
     obj -> base_path = "../out/";
     obj -> imagelist_path = obj -> base_path + "images/image_list.xml";
+    // get tag size
     obj -> extractInfo(inputSettingsFile);// Extract Info
 
     // Define the path of different contents

@@ -29,7 +29,7 @@ pixel_gap = 10;             % calculate uncertainty every pixel_gap pixels, e.g.
 
 
 %% Extract the calibration infomation of initial calibration process
-[basicInfo, intrinsicPara, extrinsicPara] = extract_info(filepath);
+[basicInfo, intrinsicPara, extrinsicPara] = extract_info(filepath); % get extrinsic and intrinsic params
 
 % Shorthands
 basicInfo.dist_border = dist_border;
@@ -42,7 +42,7 @@ square_Size = basicInfo.square_Size;
 num_frame = basicInfo.num_frame;
 rot_Mat = extrinsicPara.rot_Mat;
 t_Vec = extrinsicPara.t_Vec;
-%% Define 3D points in the world coordinate
+%% Define 3D points in the world coordinate single board
 corners = zeros(board_Width * board_Height, 3);
 for i = 1 : board_Height
     for j = 1 : board_Width
@@ -78,11 +78,13 @@ if plot_uncertainty
     J = [A,B];
     M = J'*ACMat*J;
 
+    % schur complement
     U = M(1:num_intr,1:num_intr);
     W = M(1:num_intr,num_intr+1:end);
     V = M(num_intr+1:end,num_intr+1:end);
     Sigma = inv(U- W*inv(V)*W');
 
+    % show project uncertainty map
     uncertainty_map(Sigma, intrinsicPara, basicInfo, pixel_gap);
 end
 %% Numerically get the next pose using optimizer (Local or Global(SA))
@@ -90,34 +92,43 @@ end
 % Set initial extrinsic parameters
 x = [0, 0, 0, mean(t_Vec(1,:)),mean(t_Vec(2,:)),mean(t_Vec(3,:))];
 
-% Global optimization method
+% Global optimization methods
 tic
 lb = [0, 0, 0, -tranlation_bound, -tranlation_bound, 0]; % lower bound
 ub = [2*pi, pi, 2*pi, tranlation_bound, tranlation_bound, mean(t_Vec(3,:))]; % upper bound
 
+% level of display 
 options = saoptimset('Display', optim_display); % check other options for SA in https://www.mathworks.com/help/gads/saoptimset.html
 if autoCorr_flag == 1
     ACMat_extend = zeros(size(ACMat) + [2*board_Height*board_Width, 2*board_Height*board_Width]);
     ACMat_extend(1:size(ACMat,1), 1:size(ACMat,2)) = ACMat;
+    % find minimun by trace
     [x,fval,exitFlag,output] = simulannealbnd(@(x)cost_function(x,A,B, corners, intrinsicPara, basicInfo, ACMat_extend), x, lb, ub, options)
 else
     [x,fval,exitFlag,output] = simulannealbnd(@(x)cost_function(x,A,B, corners, intrinsicPara, basicInfo), x, lb, ub, options)
 end
 toc
 
+%% using pose get next expected point
+% project with new points 
+% x is pose
 P_next = compute_nextpose_points(x, corners, intrinsicPara, basicInfo);
-% Plot the expected images with new pose
+% Plot the expected images points with new pose
 plot_nextpose(P_next, basicInfo);
 % Save nextpose points
 dlmwrite(strcat(filepath,'nextpose_points.txt'), P_next);
 %% Expected ncertainty map after estimating the new pose
 if plot_uncertainty
+    % build sub jacobian matrix of next pose
     [A_new, B_new] = build_Jacobian_nextpose(intrinsicPara, basicInfo, corners, x);
 
+    % stack into origin A and B
     A = [A;A_new];
     B = [B, zeros(size(B,1),6);zeros(2*board_Width*board_Height,size(B,2)), B_new];
     J = [A,B];
+   
 
+    % stack new point matrix 
     if autoCorr_flag == 1
         [ACMat_new,~] = buildSingleAutoCorrMatrix(P_next, basicInfo);
         ACMat_extend = zeros(size(ACMat) + size(ACMat_new));
@@ -127,11 +138,13 @@ if plot_uncertainty
         ACMat_extend = eye(size(J,1));
     end
 
+    % get new up-left matrix
     M = J' * ACMat_extend * J;
     U = M(1:num_intr,1:num_intr);
     W = M(1:num_intr,num_intr+1:end);
     V = M(num_intr+1:end,num_intr+1:end);
     F = inv(U- W*inv(V)*W');
 
+    % get proj uncertainty map
     uncertainty_map(F, intrinsicPara, basicInfo, pixel_gap);
 end

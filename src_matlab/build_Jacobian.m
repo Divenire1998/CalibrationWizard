@@ -20,22 +20,28 @@ for m = 1 : num_frame
             Q2 = corners(2, j + (i - 1) * board_Width);
             Q3 = corners(3, j + (i - 1) * board_Width);
             
+
             Cross = [Q1 Q3 -Q2;
                      -Q3 Q2 Q1;
                      Q2 -Q1 Q3];
             dSdR = extrinsicPara.rot_Mat(:,:,m) * Cross;
+
+            % Cross = [0 -Q3 Q2;
+            %          Q3 0 -Q1;
+            %          -Q2 Q1 0];
+            % dSdR = -extrinsicPara.rot_Mat(:,:,m) * Cross;
             
             switch num_intrinsic
                 case 3 % no distortion
                     % Build intrinsic parts in the Jacobian matrix
-                    A(pos, :) = [S1/S3,1,0];
-                    A(pos + 1, :) = [S2/S3,0,1];
+                    A(pos, :) = [S1/S3,1,0];        % qx respect to f,u,v,
+                    A(pos + 1, :) = [S2/S3,0,1];    % qy respect to f,u,v,
                     
                     % Build extrinsic parts in the Jacobian matrix
-                    BRx = [f * (1/S3), 0, -f * (S1/S3^2)] * dSdR;     
-                    Btx = [f * (1/S3), 0, -f * (S1/S3^2)];     
-                    BRy = [0, f * (1/S3), -f * (S2/S3^2)] * dSdR;
-                    Bty = [0, f * (1/S3), -f * (S2/S3^2)];
+                    BRx = [f * (1/S3), 0, -f * (S1/S3^2)] * dSdR;     %proj point x respect to R
+                    Btx = [f * (1/S3), 0, -f * (S1/S3^2)];            %proj point x respect to t
+                    BRy = [0, f * (1/S3), -f * (S2/S3^2)] * dSdR;     %proj point y respect to R
+                    Bty = [0, f * (1/S3), -f * (S2/S3^2)];            %proj point y respect to R
                     B(pos, 6*(m-1) + 1: 6*m) = [BRx,Btx];
                     B(pos+1, 6*(m-1) + 1: 6*m) = [BRy,Bty];
                 case 4 % k1

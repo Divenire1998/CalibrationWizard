@@ -13,14 +13,16 @@ board_Height = basicInfo.board_Height;
 %% Calculate the image points
 P = zeros(2,board_Height*board_Width, num_frame);
 
-for m = 1 : num_frame
+for m  = 1 : num_frame
     for i = 1 : board_Height
         for j = 1 : board_Width
+            % get point
             pos = j + (i - 1) * board_Width;
             S1 = S(1,pos,m);
             S2 = S(2,pos,m);
             S3 = S(3,pos,m);
         
+            % proj point into img
             switch num_intr
                 case 3 % no distortion
                     x_ = S1/S3;
@@ -56,13 +58,15 @@ for m = 1 : num_frame
         end
     end
 end
-%%
+%% caculate per points corvariance
 
+% every point cov is 2*2, matrix size is (2*board_Height*board_Width*num_frame)
 ACMat = zeros(2*board_Height*board_Width*num_frame, 2*board_Height*board_Width*num_frame);
 for m = 1 : num_frame
-    [ACMat_cur, eigenVec2] = buildSingleAutoCorrMatrix(P(:,:,m), basicInfo);    
-    ACMat(1 + (m-1)*2*board_Height*board_Width : m*2*board_Height*board_Width,...
-          1 + (m-1)*2*board_Height*board_Width : m*2*board_Height*board_Width) = ACMat_cur;
+    % get per img matrix
+    [ACMat_cur, eigenVec2] = buildSingleAutoCorrMatrix(P(:,:,m), basicInfo); 
+    ACMat(1 + (m-1)*2*board_Height*board_Width : m*2*board_Height*board_Width,... %row
+          1 + (m-1)*2*board_Height*board_Width : m*2*board_Height*board_Width) = ACMat_cur; %col
 end
 
 end

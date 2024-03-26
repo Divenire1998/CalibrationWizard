@@ -1,10 +1,17 @@
 function out = cost_function(par,A,B, corners,intrinsicPara, basicInfo, ACMat)
-    
+% par       : param to be optimize,
+% A         : proj points respect to intrinsic
+% B         : proj points respect to extrinsic
+% corners   : stand calib parttern point
+% intrinsicPara : current estimate 
+% basicInfo     : current extrinsic  and board info
+
 num_intr = length(fieldnames(intrinsicPara));
 f = intrinsicPara.f;
 u = intrinsicPara.u;
 v = intrinsicPara.v;
-% 
+
+% get board size 
 board_Width = basicInfo.board_Width;
 board_Height = basicInfo.board_Height;
 image_Width = basicInfo.image_Width;
@@ -28,7 +35,7 @@ Rz = [cos(x(3)) -sin(x(3)) 0;
 R = Rz * Ry * Rx; % Rotation matrix in the next frame
 t = x(4:6)';
 
-
+%  3D and 2D points in next pose
 P = zeros(2,board_Height*board_Width);
 S_new = zeros(3, board_Width * board_Height);
 
@@ -92,7 +99,9 @@ for i = 1 : board_Height
     end
 end
 
+% TODO for chessboard this should avoid ,but for apriltag need more consider 
 
+% if break loop 
 if OUT_OF_RANGE == 1
     out = realmax;
     return;
@@ -103,8 +112,10 @@ end
 A = [A;A_new];
 B = [B, zeros(size(B,1),6);zeros(2*board_Width*board_Height,size(B,2)), B_new];
 J = [A,B];
+% only for reduce memory
 J = sparse(J);
 
+% if use AC mat 
 if nargin == 7
     [ACMat_new,~] = buildSingleAutoCorrMatrix(P, basicInfo);
     ACMat (end-size(ACMat_new,1)+1 : end, end-size(ACMat_new,1)+1 : end) = ACMat_new;
@@ -118,6 +129,7 @@ W = M(1:num_intr,num_intr+1:end);
 V = M(num_intr+1:end,num_intr+1:end);
 F = inv(U- W*inv(V)*W');
 
+% output the trace of matrix as evaluation cost 
 out = trace(F);
 
 end

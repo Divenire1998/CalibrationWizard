@@ -8,6 +8,7 @@ num_intr = length(fieldnames(intrinsicPara));
 board_Width = basicInfo.board_Width;
 board_Height = basicInfo.board_Height;
 
+% construct rotation matrix
 Rx = [1 0 0;
       0 cos(x(1)) -sin(x(1));    
       0 sin(x(1)) cos(x(1))];

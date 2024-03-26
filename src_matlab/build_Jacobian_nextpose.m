@@ -23,6 +23,8 @@ S_new = zeros(3, board_Width * board_Height);
 %% Build Jacobian for the next pose
 A_new = zeros(2 * board_Width * board_Height,num_intrinsic); % 2n * k
 B_new = zeros(2 * board_Width * board_Height, length(x)); % 2n * 6
+
+% get new pose frame sub jacobian matrix
 for i = 1 : board_Height
     for j = 1 : board_Width
         pos = j + (i - 1) * board_Width;
